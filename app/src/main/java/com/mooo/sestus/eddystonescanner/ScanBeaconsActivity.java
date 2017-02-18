@@ -1,20 +1,40 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
+import android.support.v13.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+
+import java.util.List;
 
 public class ScanBeaconsActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
+    private static final String TAG = "ScanBeaconResults : ";
+    private static ScanCallback cb;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +52,67 @@ public class ScanBeaconsActivity extends AppCompatActivity {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null)
             addDrawerContent(navigationView);
+        cb = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                Log.v(TAG, "OnScanResult : " +  String.valueOf(callbackType) + "  " + result);
+            }
+
+            @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+                for (ScanResult result: results)
+                    Log.v(TAG, "onBatchScanResults : " +   result.toString());
+            }
+
+            @Override
+            public void onScanFailed(int errorCode) {
+                Log.v(TAG, "Scan failed with errorCode: " + String.valueOf(errorCode));
+            }
+        };
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        boolean permissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        if(permissionGranted) {
+            // {Some Code}
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+        }
+        scanLe();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopScan();
+    }
+
+    private void stopScan() {
+        BluetoothManager blManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter blAdapter = blManager.getAdapter();
+        BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
+        if (!blAdapter.isEnabled())
+            return;
+        Log.v(TAG, "Stoping scan");
+        leScanner.stopScan(cb);
+    }
+
+    private void scanLe() {
+        BluetoothManager blManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter blAdapter = blManager.getAdapter();
+        BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
+        if (blAdapter == null || !blAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
+        }
+        Log.v(TAG, "Starting scan");
+        if (!blAdapter.isEnabled())
+            return;
+        leScanner.startScan(cb);
     }
 
     @Override
