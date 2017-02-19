@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v13.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -75,12 +76,12 @@ public class ScanBeaconsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        boolean permissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
-        if(permissionGranted) {
-            // {Some Code}
+        if (hasPermission()) {
+            scanLe();
+            return;
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1337);
         }
         scanLe();
     }
@@ -144,5 +145,10 @@ public class ScanBeaconsActivity extends AppCompatActivity {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, ScanBeaconsActivity.class);
+    }
+
+    private boolean hasPermission() {
+        return(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION));
     }
 }
