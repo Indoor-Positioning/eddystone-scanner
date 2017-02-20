@@ -3,4 +3,5 @@
     <string name="button">scan</string>
     <string name="navigation_view_header_title">Beacons</string>
     <string name="scan_beacons">scan</string>
+    <string name="btn_text_retry">Retry</string>
 </resources>
