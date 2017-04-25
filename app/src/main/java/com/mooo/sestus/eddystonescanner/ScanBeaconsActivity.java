@@ -58,11 +58,12 @@ public class ScanBeaconsActivity extends AppCompatActivity {
 
         if (hasPermission()) {
             scanLe();
-            return;
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1337);
+            if (!hasPermission())
+                finish();
+            scanLe();
         }
-        scanLe();
     }
 
     @Override
@@ -95,15 +96,17 @@ public class ScanBeaconsActivity extends AppCompatActivity {
     private void scanLe() {
         BluetoothManager blManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter blAdapter = blManager.getAdapter();
-        BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
-        if (blAdapter == null || !blAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1);
+        if (blAdapter != null) {
+            if (!blAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, 1);
+            }
+            if (blAdapter.isEnabled()) {
+                BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
+                Log.v(TAG, "Starting scan");
+                leScanner.startScan(cb);
+            }
         }
-        Log.v(TAG, "Starting scan");
-        if (!blAdapter.isEnabled())
-            return;
-        leScanner.startScan(cb);
     }
 
     private void addDrawerContent(NavigationView navigationView) {
