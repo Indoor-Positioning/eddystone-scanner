@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -114,7 +115,10 @@ public class ScanBeaconsActivity extends ListActivity {
             if (blAdapter.isEnabled()) {
                 BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
                 Log.v(TAG, "Starting scan");
-                leScanner.startScan(cb);
+                ScanSettings settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                        .build();
+                leScanner.startScan(null, settings, cb);
             }
         }
     }
