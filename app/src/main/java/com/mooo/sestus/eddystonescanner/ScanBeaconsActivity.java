@@ -3,6 +3,7 @@ package com.mooo.sestus.eddystonescanner;
 import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -18,20 +19,24 @@ import android.support.v13.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class ScanBeaconsActivity extends AppCompatActivity {
+public class ScanBeaconsActivity extends ListActivity {
 
     private DrawerLayout drawerLayout;
     private static final String TAG = "ScanBeaconResults : ";
     private static ScanCallback cb;
+    private LeDeviceListAdapter mLeDeviceListAdapter;
 
 
     @Override
@@ -39,17 +44,11 @@ public class ScanBeaconsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_beacons);
 
-        addToolbar();
-        addActionBar();
-
         drawerLayout = (DrawerLayout) findViewById(R.id.activity_scan_beacons);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null)
             addDrawerContent(navigationView);
         cb = createScanCallback();
-        if (savedInstanceState == null) {
-            addFragment(R.id.fragmentContainer, new BeaconListFragment());
-        }
     }
 
 
@@ -63,7 +62,9 @@ public class ScanBeaconsActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
-
+        // Initializes list view adapter.
+        mLeDeviceListAdapter = new LeDeviceListAdapter();
+        setListAdapter(mLeDeviceListAdapter);
 
         if (hasPermission()) {
             scanLe();
@@ -149,12 +150,17 @@ public class ScanBeaconsActivity extends AppCompatActivity {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 Log.v(TAG, "OnScanResult : " +  String.valueOf(callbackType) + "  " + result);
+                mLeDeviceListAdapter.addScanResult(result);
+                mLeDeviceListAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
-                for (ScanResult result: results)
-                    Log.v(TAG, "onBatchScanResults : " +   result.toString());
+                for (ScanResult result: results) {
+                    mLeDeviceListAdapter.addScanResult(result);
+                    Log.v(TAG, "onBatchScanResults : " + result.toString());
+                }
+                mLeDeviceListAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -170,15 +176,79 @@ public class ScanBeaconsActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    // Adapter for holding devices found through scanning.
+    private class LeDeviceListAdapter extends BaseAdapter {
+        private ArrayList<ScanResult> scanResults;
+        private LayoutInflater mInflator;
 
-    private void addActionBar() {
-        ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-        ab.setDisplayHomeAsUpEnabled(true);
+        public LeDeviceListAdapter() {
+            super();
+            scanResults = new ArrayList<>();
+            mInflator = ScanBeaconsActivity.this.getLayoutInflater();
+        }
+
+        public void addScanResult(ScanResult scanResult) {
+            if(!scanResults.contains(scanResult)) {
+                scanResults.add(scanResult);
+            }
+        }
+
+        public ScanResult getDevice(int position) {
+            return scanResults.get(position);
+        }
+
+        public void clear() {
+            scanResults.clear();
+        }
+
+        @Override
+        public int getCount() {
+            return scanResults.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return scanResults.get(i);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            ViewHolder viewHolder;
+            // General ListView optimization code.
+            if (view == null) {
+                view = mInflator.inflate(R.layout.listitem_device, null);
+                viewHolder = new ViewHolder();
+                viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
+                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                viewHolder.rssi = (TextView) view.findViewById(R.id.rssi);
+                view.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) view.getTag();
+            }
+
+            ScanResult scanResult = scanResults.get(i);
+            final String deviceName = scanResult.getDevice().getName();
+            if (deviceName != null && deviceName.length() > 0)
+                viewHolder.deviceName.setText(deviceName);
+            else
+                viewHolder.deviceName.setText(R.string.unknown_device);
+            viewHolder.deviceAddress.setText(scanResult.getDevice().getAddress());
+            viewHolder.rssi.setText(String.valueOf(scanResult.getRssi()));
+
+            return view;
+        }
     }
 
-    private void addToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+    private static class ViewHolder {
+        TextView deviceName;
+        TextView deviceAddress;
+        TextView rssi;
     }
+
 }
