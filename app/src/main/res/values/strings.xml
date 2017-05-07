@@ -4,4 +4,5 @@
     <string name="navigation_view_header_title">Beacons</string>
     <string name="scan_beacons">scan</string>
     <string name="btn_text_retry">Retry</string>
+    <string name="ble_not_supported">BLE not supported</string>
 </resources>
