@@ -1,8 +1,13 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -65,6 +70,12 @@ public class PermissionManager {
                 }
             }
         });
+    }
+
+
+    static boolean hasPermission(Context activity) {
+        return(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_FINE_LOCATION));
     }
 
 }

@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -57,15 +56,16 @@ public class ScanBeaconsActivity extends ListActivity {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+        PermissionManager.enableLocation(this);
         // Initializes list view adapter.
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         setListAdapter(mLeDeviceListAdapter);
 
-        if (hasPermission()) {
+        if (PermissionManager.hasPermission(this)) {
             scanLe();
         } else {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1337);
-            if (!hasPermission())
+            if (!PermissionManager.hasPermission(this))
                 finish();
             scanLe();
         }
@@ -137,10 +137,6 @@ public class ScanBeaconsActivity extends ListActivity {
         return new Intent(context, ScanBeaconsActivity.class);
     }
 
-    private boolean hasPermission() {
-        return(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION));
-    }
 
     @NonNull
     private ScanCallback createScanCallback() {
