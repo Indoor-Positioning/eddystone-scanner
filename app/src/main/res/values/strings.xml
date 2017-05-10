@@ -6,7 +6,7 @@
     <string name="btn_text_retry">Retry</string>
     <string name="ble_not_supported">BLE not supported</string>
     <string name="unknown_device">Uknown device</string>
-    <string name="title_activity_start">StartActivity</string>
+    <string name="title_activity_start">Indoor Positioning</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
