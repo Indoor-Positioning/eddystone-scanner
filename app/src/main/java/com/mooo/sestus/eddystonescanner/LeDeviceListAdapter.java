@@ -13,15 +13,15 @@ import java.util.ArrayList;
  * Created by mmilonakis on 8/5/2017.
  */ // Adapter for holding devices found through scanning.
 public class LeDeviceListAdapter extends BaseAdapter {
-    private ScanBeaconsActivity scanBeaconsActivity;
+    private ScanBeaconsFragment scanBeaconsActivity;
     private ArrayList<ScanResult> scanResults;
     private LayoutInflater mInflator;
 
-    public LeDeviceListAdapter(ScanBeaconsActivity scanBeaconsActivity) {
+    public LeDeviceListAdapter(ScanBeaconsFragment scanBeaconsActivity) {
         super();
         this.scanBeaconsActivity = scanBeaconsActivity;
         scanResults = new ArrayList<>();
-        mInflator = scanBeaconsActivity.getLayoutInflater();
+        mInflator = scanBeaconsActivity.getActivity().getLayoutInflater();
     }
 
     public void addScanResult(ScanResult scanResult) {

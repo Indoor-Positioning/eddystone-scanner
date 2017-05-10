@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.mooo.sestus.eddystonescanner.MainActivity;
 import com.mooo.sestus.eddystonescanner.R;
-import com.mooo.sestus.eddystonescanner.ScanBeaconsActivity;
+import com.mooo.sestus.eddystonescanner.ScanBeaconsFragment;
 
 import org.hamcrest.Matcher;
 import org.junit.Rule;
@@ -43,7 +43,7 @@ public class MainActivityTest {
     public void ScanButton_OnClick_StartsScanBeaconsActivity() throws Exception {
         onView(button).perform(click());
 
-        intended(hasComponent(ScanBeaconsActivity.class.getName()));
+        intended(hasComponent(ScanBeaconsFragment.class.getName()));
     }
 
 }

@@ -1,7 +1,7 @@
 package com.mooo.sestus.eddystonescanner;
 
 import android.Manifest;
-import android.app.ListActivity;
+import android.app.ListFragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -15,91 +15,77 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.List;
 
-public class ScanBeaconsActivity extends ListActivity {
+public class ScanBeaconsFragment extends ListFragment {
 
-    private DrawerLayout drawerLayout;
     private static final String TAG = "ScanBeaconResults : ";
     private static ScanCallback cb;
     private LeDeviceListAdapter mLeDeviceListAdapter;
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_scan_beacons, container, false);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan_beacons);
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.activity_scan_beacons);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null)
-            addDrawerContent(navigationView);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         cb = createScanCallback();
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         // Use this check to determine whether BLE is supported on the device. Then
         // you can selectively disable BLE-related features.
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
+        if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(getContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            getActivity().finish();
         }
-        PermissionManager.enableLocation(this);
+        PermissionManager.enableLocation(getActivity());
         // Initializes list view adapter.
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         setListAdapter(mLeDeviceListAdapter);
 
-        if (PermissionManager.hasPermission(this)) {
+        if (PermissionManager.hasPermission(getActivity())) {
             scanLe();
         } else {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1337);
-            if (!PermissionManager.hasPermission(this))
-                finish();
+            if (!PermissionManager.hasPermission(getActivity()))
+                getActivity().finish();
             scanLe();
         }
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         stopScan();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // Open the navigation drawer when the home icon is selected from the toolbar.
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void stopScan() {
-        BluetoothManager blManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager blManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter blAdapter = blManager.getAdapter();
         BluetoothLeScanner leScanner = blAdapter.getBluetoothLeScanner();
         if (!blAdapter.isEnabled())
             return;
-        Log.v(TAG, "Stoping scan");
+        Log.v(TAG, "Stopping scan");
         leScanner.stopScan(cb);
     }
 
     private void scanLe() {
-        BluetoothManager blManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager blManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter blAdapter = blManager.getAdapter();
         if (blAdapter != null) {
             if (!blAdapter.isEnabled()) {
@@ -117,24 +103,9 @@ public class ScanBeaconsActivity extends ListActivity {
         }
     }
 
-    private void addDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    default:
-                        break;
-                }
-                item.setChecked(true);
-                drawerLayout.closeDrawers();
-                return true;
-            }
-        });
-
-    }
 
     public static Intent getCallingIntent(Context context) {
-        return new Intent(context, ScanBeaconsActivity.class);
+        return new Intent(context, ScanBeaconsFragment.class);
     }
 
 
@@ -165,7 +136,7 @@ public class ScanBeaconsActivity extends ListActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         scanLe();
     }
