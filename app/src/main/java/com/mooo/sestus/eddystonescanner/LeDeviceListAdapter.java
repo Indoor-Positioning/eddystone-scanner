@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by mmilonakis on 8/5/2017.
@@ -15,18 +16,24 @@ import java.util.ArrayList;
 public class LeDeviceListAdapter extends BaseAdapter {
     private ScanBeaconsFragment scanBeaconsActivity;
     private ArrayList<ScanResult> scanResults;
+    private HashMap<String, Integer> addressToIndexMap;
     private LayoutInflater mInflator;
 
     public LeDeviceListAdapter(ScanBeaconsFragment scanBeaconsActivity) {
         super();
         this.scanBeaconsActivity = scanBeaconsActivity;
         scanResults = new ArrayList<>();
+        addressToIndexMap = new HashMap<>();
         mInflator = scanBeaconsActivity.getActivity().getLayoutInflater();
     }
 
     public void addScanResult(ScanResult scanResult) {
-        if (!scanResults.contains(scanResult)) {
+        String address = scanResult.getDevice().getAddress();
+        if (addressToIndexMap.containsKey(address)) {
+            scanResults.set(addressToIndexMap.get(address), scanResult);
+        } else {
             scanResults.add(scanResult);
+            addressToIndexMap.put(address, scanResults.size() - 1);
         }
     }
 
@@ -48,7 +55,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
-        // General ListView optimization code.
         if (view == null) {
             view = mInflator.inflate(R.layout.listitem_device, null);
             viewHolder = new ViewHolder();
