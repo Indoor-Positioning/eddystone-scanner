@@ -10,9 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by mmilonakis on 8/5/2017.
- */ // Adapter for holding devices found through scanning.
+
 public class LeDeviceListAdapter extends BaseAdapter {
     private ScanBeaconsFragment scanBeaconsActivity;
     private ArrayList<ScanResult> scanResults;

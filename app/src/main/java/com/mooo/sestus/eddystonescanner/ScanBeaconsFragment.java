@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScanBeaconsFragment extends ListFragment {
@@ -28,6 +31,23 @@ public class ScanBeaconsFragment extends ListFragment {
     private static final String TAG = "ScanBeaconResults : ";
     private static ScanCallback cb;
     private LeDeviceListAdapter mLeDeviceListAdapter;
+    public static final ParcelUuid EDDYSTONE_SERVICE_UUID =
+            ParcelUuid.fromString("0000FEAA-0000-1000-8000-00805F9B34FB");
+    private static final byte[] NAMESPACE_FILTER = {
+            0x00, //Frame type
+            0x00, //TX power
+            (byte)0x01, (byte)0x23, (byte)0x45, (byte)0x67, (byte)0x89,
+            (byte)0xab, (byte)0xcd, (byte)0xef, (byte)0x01, (byte)0x23,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    private static final byte[] NAMESPACE_FILTER_MASK = {
+            (byte)0xFF,
+            0x00,
+            (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+            (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +94,17 @@ public class ScanBeaconsFragment extends ListFragment {
         stopScan();
     }
 
+    private static final ScanFilter EDDYSTONE_SCAN_FILTER = new ScanFilter.Builder()
+            .setServiceUuid(EDDYSTONE_SERVICE_UUID)
+            .setServiceData(EDDYSTONE_SERVICE_UUID, NAMESPACE_FILTER, NAMESPACE_FILTER_MASK)
+            .build();
+
+    private static List<ScanFilter> buildScanFilters() {
+        List<ScanFilter> scanFilters = new ArrayList<>();
+        scanFilters.add(EDDYSTONE_SCAN_FILTER);
+        return scanFilters;
+    }
+
     private void stopScan() {
         BluetoothManager blManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter blAdapter = blManager.getAdapter();
@@ -98,7 +129,7 @@ public class ScanBeaconsFragment extends ListFragment {
                 ScanSettings settings = new ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                         .build();
-                leScanner.startScan(null, settings, cb);
+                leScanner.startScan(buildScanFilters(), settings, cb);
             }
         }
     }
