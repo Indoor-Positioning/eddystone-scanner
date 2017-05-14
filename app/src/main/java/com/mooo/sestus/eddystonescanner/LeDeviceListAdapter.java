@@ -12,14 +12,12 @@ import java.util.HashMap;
 
 
 public class LeDeviceListAdapter extends BaseAdapter {
-    private ScanBeaconsFragment scanBeaconsActivity;
     private ArrayList<ScanResult> scanResults;
     private HashMap<String, Integer> addressToIndexMap;
     private LayoutInflater mInflator;
 
     public LeDeviceListAdapter(ScanBeaconsFragment scanBeaconsActivity) {
         super();
-        this.scanBeaconsActivity = scanBeaconsActivity;
         scanResults = new ArrayList<>();
         addressToIndexMap = new HashMap<>();
         mInflator = scanBeaconsActivity.getActivity().getLayoutInflater();
