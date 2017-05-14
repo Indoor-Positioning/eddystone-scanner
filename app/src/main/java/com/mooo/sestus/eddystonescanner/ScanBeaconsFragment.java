@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -31,23 +30,6 @@ public class ScanBeaconsFragment extends ListFragment {
     private static final String TAG = "ScanBeaconResults : ";
     private static ScanCallback cb;
     private LeDeviceListAdapter mLeDeviceListAdapter;
-    public static final ParcelUuid EDDYSTONE_SERVICE_UUID =
-            ParcelUuid.fromString("0000FEAA-0000-1000-8000-00805F9B34FB");
-    private static final byte[] NAMESPACE_FILTER = {
-            0x00, //Frame type
-            0x00, //TX power
-            (byte)0x01, (byte)0x23, (byte)0x45, (byte)0x67, (byte)0x89,
-            (byte)0xab, (byte)0xcd, (byte)0xef, (byte)0x01, (byte)0x23,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
-
-    private static final byte[] NAMESPACE_FILTER_MASK = {
-            (byte)0xFF,
-            0x00,
-            (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
-            (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,8 +49,6 @@ public class ScanBeaconsFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        // Use this check to determine whether BLE is supported on the device. Then
-        // you can selectively disable BLE-related features.
         if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(getContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             getActivity().finish();
@@ -95,8 +75,8 @@ public class ScanBeaconsFragment extends ListFragment {
     }
 
     private static final ScanFilter EDDYSTONE_SCAN_FILTER = new ScanFilter.Builder()
-            .setServiceUuid(EDDYSTONE_SERVICE_UUID)
-            .setServiceData(EDDYSTONE_SERVICE_UUID, NAMESPACE_FILTER, NAMESPACE_FILTER_MASK)
+            .setServiceUuid(BeaconUtils.EDDYSTONE_SERVICE_UUID)
+            .setServiceData(BeaconUtils.EDDYSTONE_SERVICE_UUID, BeaconUtils.NAMESPACE_FILTER, BeaconUtils.NAMESPACE_FILTER_MASK)
             .build();
 
     private static List<ScanFilter> buildScanFilters() {
