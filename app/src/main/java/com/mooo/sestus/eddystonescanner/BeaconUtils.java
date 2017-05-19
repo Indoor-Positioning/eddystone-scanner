@@ -1,5 +1,6 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.bluetooth.le.ScanFilter;
 import android.os.ParcelUuid;
 
 public class BeaconUtils {
@@ -19,4 +20,9 @@ public class BeaconUtils {
             (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
+
+    static final ScanFilter EDDYSTONE_SCAN_FILTER = new ScanFilter.Builder()
+            .setServiceUuid(EDDYSTONE_SERVICE_UUID)
+            .setServiceData(EDDYSTONE_SERVICE_UUID, NAMESPACE_FILTER, NAMESPACE_FILTER_MASK)
+            .build();
 }

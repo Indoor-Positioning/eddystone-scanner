@@ -78,6 +78,8 @@ public class StartActivity extends AppCompatActivity
         Fragment fragment = null;
         if (id == R.id.nav_scan_beacons)
             fragment = new ScanBeaconsFragment();
+        else if (id == R.id.nav_locations)
+            fragment = new SavedLocationsFragment();
 
         FragmentManager fragmentManager = getFragmentManager();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

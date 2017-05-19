@@ -47,7 +47,7 @@ public class ScanBeaconsFragment extends ListFragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Save beacon fingerprint not implemented yet", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -87,14 +87,9 @@ public class ScanBeaconsFragment extends ListFragment {
         stopScan();
     }
 
-    private static final ScanFilter EDDYSTONE_SCAN_FILTER = new ScanFilter.Builder()
-            .setServiceUuid(BeaconUtils.EDDYSTONE_SERVICE_UUID)
-            .setServiceData(BeaconUtils.EDDYSTONE_SERVICE_UUID, BeaconUtils.NAMESPACE_FILTER, BeaconUtils.NAMESPACE_FILTER_MASK)
-            .build();
-
     private static List<ScanFilter> buildScanFilters() {
         List<ScanFilter> scanFilters = new ArrayList<>();
-        scanFilters.add(EDDYSTONE_SCAN_FILTER);
+        scanFilters.add(BeaconUtils.EDDYSTONE_SCAN_FILTER);
         return scanFilters;
     }
 

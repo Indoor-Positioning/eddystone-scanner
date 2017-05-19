@@ -10,10 +10,10 @@
             <!--android:id="@+id/nav_gallery"-->
             <!--android:icon="@drawable/ic_menu_gallery"-->
             <!--android:title="Gallery" />-->
-        <!--<item-->
-            <!--android:id="@+id/nav_slideshow"-->
-            <!--android:icon="@drawable/ic_menu_slideshow"-->
-            <!--android:title="Slideshow" />-->
+        <item
+            android:id="@+id/nav_locations"
+            android:icon="@drawable/ic_location_on_black"
+            android:title="Saved Locations" />
         <item
             android:id="@+id/nav_scan_beacons"
             android:icon="@drawable/ic_bluetooth_scan"
