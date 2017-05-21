@@ -51,6 +51,7 @@ public class ScanBeaconsFragment extends ListFragment {
                         .setAction("Action", null).show();
             }
         });
+        fab.setImageResource(android.R.drawable.ic_menu_save);
         fab.show();
 
         cb = createScanCallback();

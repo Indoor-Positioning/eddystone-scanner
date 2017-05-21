@@ -1,9 +1,9 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.app.DialogFragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +30,8 @@ public class SavedLocationsFragment extends ListFragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Add location not implemented yet", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                DialogFragment dialog = new AddLocationDialogFragment();
+                dialog.show(getFragmentManager(), "AddLocationDialogFragment");
             }
         });
         fab.setImageResource(R.drawable.ic_add_location_black);

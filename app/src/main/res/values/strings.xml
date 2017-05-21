@@ -14,4 +14,9 @@
     <string name="action_settings">Settings</string>
     <string name="nearby_beacons_menu_item">Nearby Beacons</string>
     <string name="eddystone_beacon" />
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="location_add">add</string>
+    <string name="cancel">cancel</string>
 </resources>

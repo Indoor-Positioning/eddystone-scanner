@@ -3,6 +3,7 @@ package com.mooo.sestus.eddystonescanner;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -16,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class StartActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AddLocationDialogFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +85,17 @@ public class StartActivity extends AppCompatActivity
         FragmentManager fragmentManager = getFragmentManager();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         fragmentManager.beginTransaction()
-                .replace(R.id.nav_container, fragment).commit();
+                .replace(R.id.nav_container, fragment)
+                .addToBackStack(null)
+                .commit();
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onLocationAdded(String location, String description) {
+        Snackbar.make(findViewById(R.id.coordinatorLayout), "Location :" + location + ", Description: " + description, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 }
