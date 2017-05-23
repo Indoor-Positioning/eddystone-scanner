@@ -44,15 +44,7 @@ public class ScanBeaconsFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Save beacon fingerprint not implemented yet", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        fab.setImageResource(android.R.drawable.ic_menu_save);
-        fab.show();
+
 
         cb = createScanCallback();
     }

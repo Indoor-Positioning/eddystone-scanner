@@ -1,12 +1,11 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,9 +14,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import java.io.File;
 
 public class StartActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AddLocationDialogFragment.OnFragmentInteractionListener {
+        implements  NavigationView.OnNavigationItemSelectedListener,
+                    AddLocationDialogFragment.OnFragmentInteractionListener,
+                    SavedLocationsFragment.OnListFragmentInteractionListener {
+
+    private File internalStorage;
+    private FloatingActionButton fab;
+    private ScanBeaconsFragment scanBeaconsFragment;
+    private SavedLocationsFragment savedLocationsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +35,7 @@ public class StartActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.hide();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -37,6 +46,7 @@ public class StartActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        internalStorage = getFilesDir();
     }
 
     @Override
@@ -77,10 +87,28 @@ public class StartActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment fragment = null;
-        if (id == R.id.nav_scan_beacons)
-            fragment = new ScanBeaconsFragment();
-        else if (id == R.id.nav_locations)
-            fragment = new SavedLocationsFragment();
+        if (id == R.id.nav_scan_beacons) {
+            fragment = scanBeaconsFragment == null ? scanBeaconsFragment = new ScanBeaconsFragment() : scanBeaconsFragment;
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Save beacon fingerprint not implemented yet", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+            fab.setImageResource(android.R.drawable.ic_menu_save);
+        }
+        else if (id == R.id.nav_locations) {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DialogFragment dialog = new AddLocationDialogFragment();
+                    dialog.show(getFragmentManager(), "AddLocationDialogFragment");
+                }
+            });
+            fab.setImageResource(R.drawable.ic_add_location_black);
+            fragment = savedLocationsFragment == null ? savedLocationsFragment = new SavedLocationsFragment() : savedLocationsFragment;
+        }
 
         FragmentManager fragmentManager = getFragmentManager();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -88,6 +116,7 @@ public class StartActivity extends AppCompatActivity
                 .replace(R.id.nav_container, fragment)
                 .addToBackStack(null)
                 .commit();
+        fab.show();
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -95,7 +124,14 @@ public class StartActivity extends AppCompatActivity
 
     @Override
     public void onLocationAdded(String location, String description) {
+        SavedLocationsFragment frag = (SavedLocationsFragment) getFragmentManager().findFragmentById(R.id.nav_container);
+        frag.addLocation(location);
         Snackbar.make(findViewById(R.id.coordinatorLayout), "Location :" + location + ", Description: " + description, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+    }
+
+    @Override
+    public void onListFragmentInteraction(String item) {
+
     }
 }
