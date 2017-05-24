@@ -25,8 +25,6 @@ public class StartActivity extends AppCompatActivity
 
     private File internalStorage;
     private FloatingActionButton fab;
-    private ScanBeaconsFragment scanBeaconsFragment;
-    private SavedLocationsFragment savedLocationsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +85,13 @@ public class StartActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment fragment = null;
+        String tag = null;
+        FragmentManager fragmentManager = getFragmentManager();
         if (id == R.id.nav_scan_beacons) {
-            fragment = scanBeaconsFragment == null ? scanBeaconsFragment = new ScanBeaconsFragment() : scanBeaconsFragment;
+            tag = "SCAN_BEACONS_FRAG";
+            fragment = fragmentManager.findFragmentByTag("SCAN_BEACONS_FRAG");
+            if (fragment == null)
+                fragment = new ScanBeaconsFragment();
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -99,6 +102,10 @@ public class StartActivity extends AppCompatActivity
             fab.setImageResource(android.R.drawable.ic_menu_save);
         }
         else if (id == R.id.nav_locations) {
+            tag = "SAVED_LOCATIONS_FRAG";
+            fragment = fragmentManager.findFragmentByTag("SAVED_LOCATIONS_FRAG");
+            if (fragment == null)
+                fragment = new SavedLocationsFragment();
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -107,13 +114,12 @@ public class StartActivity extends AppCompatActivity
                 }
             });
             fab.setImageResource(R.drawable.ic_add_location_black);
-            fragment = savedLocationsFragment == null ? savedLocationsFragment = new SavedLocationsFragment() : savedLocationsFragment;
+
         }
 
-        FragmentManager fragmentManager = getFragmentManager();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         fragmentManager.beginTransaction()
-                .replace(R.id.nav_container, fragment)
+                .replace(R.id.nav_container, fragment, tag)
                 .addToBackStack(null)
                 .commit();
         fab.show();

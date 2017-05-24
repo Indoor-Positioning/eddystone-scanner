@@ -9,6 +9,9 @@ import android.widget.TextView;
 import com.mooo.sestus.eddystonescanner.SavedLocationsFragment.OnListFragmentInteractionListener;
 import com.mooo.sestus.eddystonescanner.dummy.DummyContent.DummyItem;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,10 +23,20 @@ public class SavedLocationsRecyclerViewAdapter extends RecyclerView.Adapter<Save
 
     private final List<String> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private final File appDir;
 
-    public SavedLocationsRecyclerViewAdapter(List<String> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    public SavedLocationsRecyclerViewAdapter(File appDir, OnListFragmentInteractionListener listener) {
+        mValues = new ArrayList<>();
+        this.appDir = appDir;
+        readLocationFromAppDir();
         mListener = listener;
+    }
+
+    private void readLocationFromAppDir() {
+        File[] locations = appDir.listFiles();
+        for (File location : locations) {
+            mValues.add(location.getName());
+        }
     }
 
     public boolean addLocation(String location) {
@@ -60,6 +73,16 @@ public class SavedLocationsRecyclerViewAdapter extends RecyclerView.Adapter<Save
     @Override
     public int getItemCount() {
         return mValues.size();
+    }
+
+    public void persistLocations() {
+        for (String location: mValues) {
+            try {
+                new File(appDir, location).createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
@@ -61,7 +60,7 @@ public class SavedLocationsFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             if (adapter == null)
-                adapter = new SavedLocationsRecyclerViewAdapter(new ArrayList<String>(), mListener);
+                adapter = new SavedLocationsRecyclerViewAdapter(getActivity().getFilesDir(), mListener);
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
@@ -83,6 +82,12 @@ public class SavedLocationsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        adapter.persistLocations();
     }
 
     @Override
