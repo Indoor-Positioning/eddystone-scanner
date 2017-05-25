@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 
@@ -17,6 +18,8 @@ public class AddLocationDialogFragment extends DialogFragment {
     private OnFragmentInteractionListener mListener;
     private EditText mLocationName;
     private EditText mLocationDescription;
+
+    private boolean isLocationAdded;
 
     public AddLocationDialogFragment() {
         // Required empty public constructor
@@ -32,30 +35,47 @@ public class AddLocationDialogFragment extends DialogFragment {
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         View view = inflater.inflate(R.layout.fragment_new_location, null);
-        builder.setView(view)
+        final AlertDialog alertDialog = builder.setView(view)
                 .setTitle("Add new location")
                 // Add action buttons
                 .setPositiveButton(R.string.location_add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        mLocationName = (EditText) getDialog().findViewById(R.id.location_name);
-                        mLocationDescription = (EditText) getDialog().findViewById(R.id.location_description);
-                        onLocationAdded(mLocationName.getText().toString(), mLocationDescription.getText().toString());
+
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         AddLocationDialogFragment.this.getDialog().cancel();
                     }
+                }).create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mLocationName = (EditText) getDialog().findViewById(R.id.location_name);
+                        mLocationDescription = (EditText) getDialog().findViewById(R.id.location_description);
+                        isLocationAdded = onLocationAdded(mLocationName.getText().toString(), mLocationDescription.getText().toString());
+                        if (!isLocationAdded) {
+                            mLocationName.setError("Location already exists");
+                            alertDialog.show();
+                        }
+                        else
+                            alertDialog.dismiss();
+                    }
                 });
-        return builder.create();
+            }
+        });
+
+        return alertDialog;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onLocationAdded(String name, String description) {
-        if (mListener != null) {
-            mListener.onLocationAdded(name, description);
-        }
+    public boolean onLocationAdded(String name, String description) {
+        return mListener != null && mListener.onLocationAdded(name, description);
     }
 
     @Override
@@ -87,6 +107,6 @@ public class AddLocationDialogFragment extends DialogFragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onLocationAdded(String location, String description);
+        boolean onLocationAdded(String location, String description);
     }
 }

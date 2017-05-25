@@ -129,11 +129,12 @@ public class StartActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLocationAdded(String location, String description) {
+    public boolean onLocationAdded(String location, String description) {
         SavedLocationsFragment frag = (SavedLocationsFragment) getFragmentManager().findFragmentById(R.id.nav_container);
-        frag.addLocation(location);
-        Snackbar.make(findViewById(R.id.coordinatorLayout), "Location :" + location + ", Description: " + description, Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
+        return frag.addLocation(location);
+//
+//        Snackbar.make(findViewById(R.id.coordinatorLayout), "Location :" + location + ", Description: " + description, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show();
     }
 
     @Override

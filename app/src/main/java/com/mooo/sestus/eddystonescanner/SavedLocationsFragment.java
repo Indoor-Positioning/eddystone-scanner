@@ -1,6 +1,7 @@
 package com.mooo.sestus.eddystonescanner;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -87,7 +88,12 @@ public class SavedLocationsFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        adapter.persistLocations();
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                adapter.persistLocations();
+            }
+        });
     }
 
     @Override
@@ -96,8 +102,8 @@ public class SavedLocationsFragment extends Fragment {
         mListener = null;
     }
 
-    public void addLocation(String location) {
-        adapter.addLocation(location);
+    public boolean addLocation(String location) {
+        return adapter.addLocation(location);
     }
 
     /**

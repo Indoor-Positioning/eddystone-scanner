@@ -1,5 +1,6 @@
 package com.mooo.sestus.eddystonescanner;
 
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,13 @@ public class SavedLocationsRecyclerViewAdapter extends RecyclerView.Adapter<Save
     public SavedLocationsRecyclerViewAdapter(File appDir, OnListFragmentInteractionListener listener) {
         mValues = new ArrayList<>();
         this.appDir = appDir;
-        readLocationFromAppDir();
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                readLocationFromAppDir();
+                notifyDataSetChanged();
+            }
+        });
         mListener = listener;
     }
 
@@ -40,10 +47,11 @@ public class SavedLocationsRecyclerViewAdapter extends RecyclerView.Adapter<Save
     }
 
     public boolean addLocation(String location) {
-        boolean ret = mValues.add(location);
-        if (ret)
-            notifyItemInserted(mValues.size() - 1);
-        return ret;
+        if (mValues.contains(location))
+            return false;
+        mValues.add(location);
+        notifyItemInserted(mValues.size() - 1);
+        return true;
     }
 
     @Override
