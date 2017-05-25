@@ -12,12 +12,15 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +35,9 @@ public class ScanBeaconsFragment extends ListFragment {
     private static final String TAG = "ScanBeaconResults : ";
     private static ScanCallback cb;
     private LeDeviceListAdapter mLeDeviceListAdapter;
+    private SensorManager sensorManager;
+    private Sensor mSensor;
+    private SensorEventListener listener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,9 +100,28 @@ public class ScanBeaconsFragment extends ListFragment {
             return;
         Log.v(TAG, "Stopping scan");
         leScanner.stopScan(cb);
+        sensorManager.unregisterListener(listener);
     }
 
     private void scanLe() {
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+        listener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                Log.v(TAG, String.format("Magnetic (x,y,z) : (%f, %f, %f", event.values[0], event.values[1], event.values[2]));
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+        sensorManager.registerListener(listener,
+                mSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+
         BluetoothManager blManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter blAdapter = blManager.getAdapter();
         if (blAdapter != null) {
